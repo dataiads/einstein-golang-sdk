@@ -6,14 +6,14 @@ package client
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"einstein-golang-sdk/client/operations"
+	"einstein/client/operations"
 
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 )
 
-// Default einstein golang sdk HTTP client.
+// Default einstein HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
@@ -28,14 +28,14 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"https"}
 
-// NewHTTPClient creates a new einstein golang sdk HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *EinsteinGolangSdk {
+// NewHTTPClient creates a new einstein HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *Einstein {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new einstein golang sdk HTTP client,
+// NewHTTPClientWithConfig creates a new einstein HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *EinsteinGolangSdk {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *Einstein {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -46,14 +46,14 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *Ein
 	return New(transport, formats)
 }
 
-// New creates a new einstein golang sdk client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *EinsteinGolangSdk {
+// New creates a new einstein client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *Einstein {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(EinsteinGolangSdk)
+	cli := new(Einstein)
 	cli.Transport = transport
 	cli.Operations = operations.New(transport, formats)
 	return cli
@@ -98,15 +98,15 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// EinsteinGolangSdk is a client for einstein golang sdk
-type EinsteinGolangSdk struct {
+// Einstein is a client for einstein
+type Einstein struct {
 	Operations operations.ClientService
 
 	Transport runtime.ClientTransport
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *EinsteinGolangSdk) SetTransport(transport runtime.ClientTransport) {
+func (c *Einstein) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.Operations.SetTransport(transport)
 }

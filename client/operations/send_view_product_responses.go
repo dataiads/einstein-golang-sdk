@@ -15,7 +15,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
-	"einstein-golang-sdk/models"
+	"einstein/models"
 )
 
 // SendViewProductReader is a Reader for the SendViewProduct structure.

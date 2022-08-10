@@ -1,4 +1,4 @@
-module einstein-golang-sdk
+module einstein
 
 go 1.18
 

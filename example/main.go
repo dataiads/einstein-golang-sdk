@@ -2,13 +2,15 @@ package main
 
 import (
 	"context"
-	einstein "einstein-golang-sdk"
-	"einstein-golang-sdk/client/operations"
-	"einstein-golang-sdk/models"
 	"fmt"
 	"log"
 	"os"
 	"time"
+
+	einstein "einstein"
+
+	"einstein/client/operations"
+	"einstein/models"
 )
 
 func main() {
