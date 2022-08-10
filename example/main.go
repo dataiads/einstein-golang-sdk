@@ -18,7 +18,7 @@ func main() {
 	client := einstein.NewEinsteinClient(os.Getenv("x-cq-client-id"))
 	resp, err := client.Operations.GetZoneRecommendations(&operations.GetZoneRecommendationsParams{
 		ZoneName: "test",
-		SiteID:   "bcdq-OCC_CA",
+		SiteID:   os.Getenv("site-id"),
 		Body: operations.GetZoneRecommendationsBody{
 			Rules: models.Rules{},
 		},
