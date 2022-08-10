@@ -1,0 +1,879 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Einstein Recommendations",
+    "description": "Can not resolve einstein-recommendations-description.md",
+    "version": "v3"
+  },
+  "host": "api.cquotient.com",
+  "basePath": "/v3",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "definitions": {
+    "EinsteinSiteIdParam": {
+      "description": "Your Einstein site ID, which can be found in the top right of the page on [Einstein Configurator](https://configurator.cquotient.com). It has the format `xxxx-<Commerce Cloud Site ID>`",
+      "type": "string"
+    },
+    "RealmParam": {
+      "description": "A unique four-character ID that you can get from your Account Executive (AE) or Customer Success Manager (CSM).\nTypically, the realm is the first four characters of the Einstein Site ID;\nbut if your site changes realms in Commerce Cloud, the Einstein Site ID no longer contains the correct realm.\n",
+      "type": "string"
+    },
+    "ClientIdParam": {
+      "description": "To use the Einstein API, you must pass the `x-cq-client-id` header with your Commerce Cloud Account Manager API Client ID.\nYou can find this value in Business Manager, under Administration > Site Development > Open Commerce API Settings.\nThis screen has a JSON object with all of your OCAPI configuration.\nYou can use any of the values in a `client_id` field, but ideally you should create one specifically for Einstein API calls.\n",
+      "type": "string"
+    },
+    "ProductForView": {
+      "type": "object"
+    },
+    "ProductForCheckout": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "A unique identifier for the given product.",
+          "type": "string"
+        },
+        "sku": {
+          "description": "A unique identifier for a sellable unit of the given product, when applicable.",
+          "type": "string"
+        },
+        "price": {
+          "description": "Price of each individual unit of this product.",
+          "type": "number"
+        },
+        "quantity": {
+          "description": "Number of this item purchased.",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "sku",
+        "price",
+        "quantity"
+      ]
+    },
+    "UserIdParam": {
+      "description": "Application-provided unique identifier for logged in users (hashed).",
+      "type": "string"
+    },
+    "UuidParam": {
+      "description": "Einstein API-provided unique identifier for the current user. This UUID is passed when available, and should only ever be populated with the last value returned in an activity response - never a client-generated value.",
+      "type": "string"
+    },
+    "CookieIdParam": {
+      "description": "Unique identifier of an anonymous shopper.\n**If you're making API requests from a traditional Commerce Cloud storefront, pass the `dwanonymous_*` cookie value\n(See [Browser-Based Local Data Storage](https://documentation.b2c.commercecloud.salesforce.com/DOC1/index.jsp?topic=%2Fcom.demandware.dochelp%2FDataProtectionAndPrivacy%2FLocalDataStorage.html&resultof=%22%64%77%61%6e%6f%6e%79%6d%6f%75%73%22%20%22%64%77%61%6e%6f%6e%79%6d%22%20) for more information).**\n",
+      "type": "string"
+    },
+    "ClientIpParam": {
+      "description": "IP address of the end user. Use if you're sending activities server-side for a client application.",
+      "type": "string"
+    },
+    "ClientUserAgentParam": {
+      "description": "User agent of the end user. Use if you're sending activities server-side for a client application.",
+      "type": "string"
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "A short error code to classify types of errors.",
+          "example": "ValidationError",
+          "type": "string"
+        },
+        "errors": {
+          "description": "A set of invalid parameters.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "location": {
+                "description": "The location of the invalid parameter.",
+                "example": "body",
+                "type": "string"
+              },
+              "msg": {
+                "description": "A message describing why the parameter is invalid.",
+                "example": "Must provide a `products` array.",
+                "type": "string"
+              },
+              "param": {
+                "description": "The name of the invalid parameter.",
+                "example": "products",
+                "type": "string"
+              }
+            },
+            "required": [
+              "location",
+              "msg",
+              "param"
+            ]
+          }
+        },
+        "msg": {
+          "description": "A descriptive message about the error that you can use to troubleshoot problems.",
+          "example": "There was a problem validating the request. See `errors`.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "errors",
+        "msg"
+      ]
+    },
+    "Recommender": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "The name of the recommender.",
+          "example": "recently-viewed-products",
+          "type": "string"
+        },
+        "description": {
+          "description": "The description of the recommender.",
+          "example": "Recently viewed products.",
+          "type": "string"
+        },
+        "recommenderType": {
+          "description": "The type of the recommender.",
+          "example": "recently-viewed",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "recommenderType"
+      ]
+    },
+    "RecommendersResponse": {
+      "type": "object",
+      "properties": {
+        "recommenders": {
+          "description": "The list of available recommenders.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Recommender"
+          }
+        }
+      },
+      "required": [
+        "recommenders"
+      ]
+    },
+    "RecommendationsResponse": {
+      "type": "object",
+      "properties": {
+        "recoUUID": {
+          "description": "Identifier of this recommendation set.",
+          "example": "05e0bd80-64eb-4149-ad5a-dfe1996f8f57",
+          "type": "string"
+        },
+        "recs": {
+          "description": "The set of recommendations.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Recommendation"
+          }
+        }
+      },
+      "required": [
+        "recoUUID",
+        "recs"
+      ]
+    },
+    "Recommendation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "ID of the recommendation.",
+          "example": "prod_123",
+          "type": "string"
+        },
+        "product_name": {
+          "description": "Name of the recommendation.",
+          "example": "Product ABC",
+          "type": "string"
+        },
+        "product_url": {
+          "description": "Product URL of the recommendation.",
+          "example": "prod_abc.test.com",
+          "type": "string"
+        },
+        "image_url": {
+          "description": "Image URL of the recommendation.",
+          "example": "prod_abc.test.com",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "product_name",
+        "product_url",
+        "image_url"
+      ]
+    },
+    "ZoneResponse": {
+      "type": "object",
+      "properties": {
+        "displayMessage": {
+          "description": "Text to (optionally) use to accompany the given recommendations. This message can be edited in the Configurator.",
+          "example": "Recently Viewed",
+          "type": "string"
+        },
+        "recoUUID": {
+          "description": "Identifier of this recommendation set.",
+          "example": "05e0bd80-64eb-4149-ad5a-dfe1996f8f57",
+          "type": "string"
+        },
+        "recs": {
+          "description": "The set of recommendations.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Recommendation"
+          }
+        },
+        "recommenderName": {
+          "description": "The name of the recommender that was used.",
+          "example": "recently-viewed-products",
+          "type": "string"
+        }
+      },
+      "required": [
+        "recoUUID",
+        "recs",
+        "recommenderName"
+      ]
+    },
+    "ActivityResponse": {
+      "type": "object",
+      "properties": {
+        "uuid": {
+          "description": "Unique identifier for the end user. If the client does not already persist user identifiers, this value can be used in subsequent activities and recommendation requests.",
+          "example": "ce035cc0-2cbb-4d9e-95ed-c67fa55d1eb8",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uuid"
+      ]
+    },
+    "Rules": {
+      "description": "Extra rules to add filtering on the set of recommendations",
+      "type": "array",
+      "items": {
+        "description": "A condition that the set of recommendations must meet.",
+        "properties": {
+          "type": {
+            "description": "show, hide, promote, or demote",
+            "example": "show",
+            "type": "string"
+          },
+          "field": {
+            "description": "Name of the field to compare.",
+            "example": "current_price",
+            "type": "string"
+          },
+          "operator": {
+            "description": "equals, greaterThan, or lessThan. For notEquals, use the opposite rule type (e.g. use a hide rule instead of a show rule).",
+            "example": "greaterThan",
+            "type": "string"
+          },
+          "values": {
+            "description": "List of values to compare. For greaterThan or lessThan operations, the array should consist of just one number element.",
+            "example": [
+              19.99
+            ],
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        },
+        "required": [
+          "type",
+          "field",
+          "operator",
+          "values"
+        ],
+        "type": "object"
+      }
+    }
+  },
+  "paths": {
+    "/activities/{siteId}/viewProduct": {
+      "post": {
+        "description": "Tells the Einstein engine when a user views a product.",
+        "operationId": "sendViewProduct",
+        "responses": {
+          "200": {
+            "description": "A successful response contains a UUID for the given user.",
+            "schema": {
+              "$ref": "#/definitions/ActivityResponse"
+            }
+          },
+          "400": {
+            "description": "A validation error response contains an array of invalid parameters.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-cq-client-id",
+            "type": "string",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "product": {
+                  "$ref": "#/definitions/ProductForView"
+                },
+                "userId": {
+                  "$ref": "#/definitions/UserIdParam"
+                },
+                "cookieId": {
+                  "$ref": "#/definitions/CookieIdParam"
+                },
+                "clientIp": {
+                  "$ref": "#/definitions/ClientIpParam"
+                },
+                "clientUserAgent": {
+                  "$ref": "#/definitions/ClientUserAgentParam"
+                },
+                "realm": {
+                  "$ref": "#/definitions/RealmParam"
+                }
+              },
+              "required": [
+                "product"
+              ]
+            },
+            "in": "body",
+            "name": "body",
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "siteId",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    "/activities/{siteId}/viewReco": {
+      "post": {
+        "description": "Tells the Einstein engine when a user views a set of recommendations",
+        "operationId": "sendViewReco",
+        "responses": {
+          "200": {
+            "description": "A successful response contains a UUID for the given user.",
+            "schema": {
+              "$ref": "#/definitions/ActivityResponse"
+            }
+          },
+          "400": {
+            "description": "A validation error response contains an array of invalid parameters.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-cq-client-id",
+            "type": "string",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "recommenderName": {
+                  "description": "The name of the recommender used in the recommendation request.",
+                  "type": "string"
+                },
+                "__recoUUID": {
+                  "description": "The UUID that was returned in the recommendation response.",
+                  "type": "string"
+                },
+                "products": {
+                  "description": "Array of recommendations the user viewed.",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/ProductForView"
+                  }
+                },
+                "userId": {
+                  "$ref": "#/definitions/UserIdParam"
+                },
+                "cookieId": {
+                  "$ref": "#/definitions/CookieIdParam"
+                },
+                "clientIp": {
+                  "$ref": "#/definitions/ClientIpParam"
+                },
+                "clientUserAgent": {
+                  "$ref": "#/definitions/ClientUserAgentParam"
+                },
+                "realm": {
+                  "$ref": "#/definitions/RealmParam"
+                }
+              },
+              "required": [
+                "recommenderName",
+                "__recoUUID",
+                "products"
+              ]
+            },
+            "in": "body",
+            "name": "body",
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "siteId",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    "/activities/{siteId}/clickReco": {
+      "post": {
+        "description": "Tells the Einstein engine when a user clicks on a recommendation",
+        "operationId": "sendClickReco",
+        "responses": {
+          "200": {
+            "description": "A successful response contains a UUID for the given user.",
+            "schema": {
+              "$ref": "#/definitions/ActivityResponse"
+            }
+          },
+          "400": {
+            "description": "A validation error response contains an array of invalid parameters.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-cq-client-id",
+            "type": "string",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "recommenderName": {
+                  "description": "The name of the recommender used in the recommendation request.",
+                  "type": "string"
+                },
+                "__recoUUID": {
+                  "description": "The UUID that was returned in the recommendation response.",
+                  "type": "string"
+                },
+                "product": {
+                  "$ref": "#/definitions/ProductForView"
+                },
+                "userId": {
+                  "$ref": "#/definitions/UserIdParam"
+                },
+                "cookieId": {
+                  "$ref": "#/definitions/CookieIdParam"
+                },
+                "clientIp": {
+                  "$ref": "#/definitions/ClientIpParam"
+                },
+                "clientUserAgent": {
+                  "$ref": "#/definitions/ClientUserAgentParam"
+                },
+                "realm": {
+                  "$ref": "#/definitions/RealmParam"
+                }
+              },
+              "required": [
+                "recommenderName",
+                "__recoUUID",
+                "product"
+              ]
+            },
+            "in": "body",
+            "name": "body",
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "siteId",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    "/activities/{siteId}/addToCart": {
+      "post": {
+        "description": "Tells the Einstein engine when a user adds an item to their cart.",
+        "operationId": "sendAddToCart",
+        "responses": {
+          "200": {
+            "description": "A successful response contains a UUID for the given user.",
+            "schema": {
+              "$ref": "#/definitions/ActivityResponse"
+            }
+          },
+          "400": {
+            "description": "A validation error response contains an array of invalid parameters.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-cq-client-id",
+            "type": "string",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "products": {
+                  "description": "Array of products the user has added to their cart.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "A unique identifier for the given product.",
+                        "type": "string"
+                      },
+                      "sku": {
+                        "description": "A unique identifier for a sellable unit of the given product, when applicable.",
+                        "type": "string"
+                      },
+                      "price": {
+                        "description": "Price of each individual unit of this product.",
+                        "type": "number"
+                      },
+                      "quantity": {
+                        "description": "The total number of this item in the cart.",
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "sku",
+                      "price",
+                      "quantity"
+                    ]
+                  }
+                },
+                "userId": {
+                  "$ref": "#/definitions/UserIdParam"
+                },
+                "cookieId": {
+                  "$ref": "#/definitions/CookieIdParam"
+                },
+                "clientIp": {
+                  "$ref": "#/definitions/ClientIpParam"
+                },
+                "clientUserAgent": {
+                  "$ref": "#/definitions/ClientUserAgentParam"
+                },
+                "realm": {
+                  "$ref": "#/definitions/RealmParam"
+                }
+              },
+              "required": [
+                "products"
+              ]
+            },
+            "in": "body",
+            "name": "body",
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "siteId",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    "/personalization/recommenders/{siteId}": {
+      "get": {
+        "description": "Get a list of recommenders that can be used in recommendation requests.",
+        "operationId": "getRecommenders",
+        "responses": {
+          "200": {
+            "description": "A successful response will contain a list of recommenders available for use in recommendation requests.",
+            "schema": {
+              "$ref": "#/definitions/RecommendersResponse"
+            }
+          },
+          "400": {
+            "description": "Either there was no OCAPI client id in the request, or the given OCAPI client id was not valid.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The given site ID is not valid.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-cq-client-id",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "siteId",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    "/personalization/recs/{siteId}/{recommenderName}": {
+      "post": {
+        "description": "Get a set of recommendations",
+        "operationId": "getRecommendations",
+        "responses": {
+          "200": {
+            "description": "A successful response will contain a set of recommendations.",
+            "schema": {
+              "$ref": "#/definitions/RecommendationsResponse"
+            }
+          },
+          "400": {
+            "description": "A request parameter was missing or invalid.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Either the given `recommenderName` or `siteId` was invalid.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-cq-client-id",
+            "type": "string",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "products": {
+                  "description": "Products to use as context for generating recommendations. Any given request must have only one of categories or products.",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/ProductForView"
+                  }
+                },
+                "categories": {
+                  "description": "Product categories to use as context for generating recommendations. Any given request must have only one of categories or products.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "A unique identifier for the given category.",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id"
+                    ]
+                  }
+                },
+                "rules": {
+                  "$ref": "#/definitions/Rules"
+                },
+                "userId": {
+                  "$ref": "#/definitions/UserIdParam"
+                },
+                "cookieId": {
+                  "$ref": "#/definitions/CookieIdParam"
+                },
+                "clientIp": {
+                  "$ref": "#/definitions/ClientIpParam"
+                },
+                "clientUserAgent": {
+                  "$ref": "#/definitions/ClientUserAgentParam"
+                },
+                "realm": {
+                  "$ref": "#/definitions/RealmParam"
+                }
+              },
+              "required": [
+                "realm"
+              ]
+            },
+            "in": "body",
+            "name": "body",
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "siteId",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "description": "Name of the recommender to use for recommendations. This item should exist in a response to GET /recommenders for the same site id.",
+          "type": "string",
+          "in": "path",
+          "name": "recommenderName",
+          "required": true
+        }
+      ]
+    },
+    "/personalization/{siteId}/zones/{zoneName}/recs": {
+      "post": {
+        "description": "Get a set of recommendations for a zone",
+        "operationId": "getZoneRecommendations",
+        "responses": {
+          "200": {
+            "description": "A successful response will contain a set of recommendations.",
+            "schema": {
+              "$ref": "#/definitions/ZoneResponse"
+            }
+          },
+          "400": {
+            "description": "A request parameter was missing or invalid.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "Either the given `recommenderName` or `siteId` was invalid.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "header",
+            "name": "x-cq-client-id",
+            "type": "string",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "products": {
+                  "description": "Products to use as context for generating recommendations. Any given request must have only one of categories or products.",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/ProductForView"
+                  }
+                },
+                "categories": {
+                  "description": "Product categories to use as context for generating recommendations. Any given request must have only one of categories or products.",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "A unique identifier for the given category.",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id"
+                    ]
+                  }
+                },
+                "rules": {
+                  "$ref": "#/definitions/Rules"
+                },
+                "userId": {
+                  "$ref": "#/definitions/UserIdParam"
+                },
+                "cookieId": {
+                  "$ref": "#/definitions/CookieIdParam"
+                },
+                "clientIp": {
+                  "$ref": "#/definitions/ClientIpParam"
+                },
+                "clientUserAgent": {
+                  "$ref": "#/definitions/ClientUserAgentParam"
+                },
+                "realm": {
+                  "$ref": "#/definitions/RealmParam"
+                }
+              },
+              "required": [
+                "realm"
+              ]
+            },
+            "in": "body",
+            "name": "body",
+            "required": true
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "siteId",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "description": "Name of the recommendation zone.",
+          "type": "string",
+          "in": "path",
+          "name": "zoneName",
+          "required": true
+        }
+      ]
+    }
+  }
+}
