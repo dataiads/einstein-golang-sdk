@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"einstein"
-	"einstein/client/operations"
-	"einstein/models"
+	einstein "einstein-golang-sdk"
+	"einstein-golang-sdk/client/operations"
+	"einstein-golang-sdk/models"
 	"fmt"
 	"log"
 	"os"

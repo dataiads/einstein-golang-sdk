@@ -16,7 +16,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 
-	"einstein/models"
+	"einstein-golang-sdk/models"
 )
 
 // SendClickRecoReader is a Reader for the SendClickReco structure.

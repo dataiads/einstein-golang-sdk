@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 
-	"einstein/models"
+	"einstein-golang-sdk/models"
 )
 
 // GetRecommendersReader is a Reader for the GetRecommenders structure.

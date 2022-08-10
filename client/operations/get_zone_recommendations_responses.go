@@ -17,7 +17,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 
-	"einstein/models"
+	"einstein-golang-sdk/models"
 )
 
 // GetZoneRecommendationsReader is a Reader for the GetZoneRecommendations structure.
