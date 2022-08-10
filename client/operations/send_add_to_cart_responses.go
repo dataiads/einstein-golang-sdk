@@ -17,7 +17,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/go-openapi/validate"
 
-	"einstein/models"
+	"github.com/Dataiads/einstein-golang-sdk/models"
 )
 
 // SendAddToCartReader is a Reader for the SendAddToCart structure.

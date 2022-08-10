@@ -1,7 +1,7 @@
 package einstein
 
 import (
-	apiclient "einstein/client"
+	apiclient "github.com/Dataiads/einstein-golang-sdk/client"
 
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"

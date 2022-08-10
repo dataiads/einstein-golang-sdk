@@ -7,10 +7,10 @@ import (
 	"os"
 	"time"
 
-	einstein "einstein"
+	einstein "github.com/Dataiads/einstein-golang-sdk"
 
-	"einstein/client/operations"
-	"einstein/models"
+	"github.com/Dataiads/einstein-golang-sdk/client/operations"
+	"github.com/Dataiads/einstein-golang-sdk/models"
 )
 
 func main() {

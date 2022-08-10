@@ -1,4 +1,4 @@
-module einstein
+module github.com/Dataiads/einstein-golang-sdk
 
 go 1.18
 
