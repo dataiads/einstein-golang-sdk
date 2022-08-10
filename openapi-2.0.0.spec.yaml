@@ -23,11 +23,13 @@
     },
     "RealmParam": {
       "description": "A unique four-character ID that you can get from your Account Executive (AE) or Customer Success Manager (CSM).\nTypically, the realm is the first four characters of the Einstein Site ID;\nbut if your site changes realms in Commerce Cloud, the Einstein Site ID no longer contains the correct realm.\n",
-      "type": "string"
+      "type": "string",
+      "default": ""
     },
     "ClientIdParam": {
       "description": "To use the Einstein API, you must pass the `x-cq-client-id` header with your Commerce Cloud Account Manager API Client ID.\nYou can find this value in Business Manager, under Administration > Site Development > Open Commerce API Settings.\nThis screen has a JSON object with all of your OCAPI configuration.\nYou can use any of the values in a `client_id` field, but ideally you should create one specifically for Einstein API calls.\n",
-      "type": "string"
+      "type": "string",
+      "default": ""
     },
     "ProductForView": {
       "type": "object"
